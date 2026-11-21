@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Erafone Store Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="config.js"></script>
+<style>
+:root {
+  --bg: #0f1419;
+  --bg-elev: #161b22;
+  --bg-elev-2: #1c232c;
+  --border: #2a3441;
+  --border-soft: #212a36;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --text-muted: #6e7681;
+  --accent: #4f8cff;
+  --accent-dim: #3b6fd4;
+  --success: #3fb950;
+  --warning: #d29922;
+  --danger: #f85149;
+  --info: #58a6ff;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.spinner {
+  display: inline-block; width: 18px; height: 18px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+}
+.hide { display: none !important; }
+
+/* Icon style */
+.icon { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: inline-block; vertical-align: middle; }
+.icon-lg { width: 22px; height: 22px; }
+
+/* ============ LOGIN ============ */
+.login-page {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  background: radial-gradient(ellipse at top, #1a2332 0%, var(--bg) 60%);
+}
+.login-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  padding: 36px 32px;
+  border-radius: var(--radius-lg);
+  max-width: 400px; width: 100%;
+  box-shadow: var(--shadow);
+  animation: fadeIn 0.4s ease;
+}
+.login-brand {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; margin-bottom: 6px;
+}
+.login-brand svg { color: var(--accent); }
+.login-brand h2 {
+  font-size: 20px; font-weight: 600; color: var(--text);
+}
+.login-sub {
+  text-align: center; color: var(--text-dim);
+  font-size: 13px; margin-bottom: 28px;
+}
+.login-field { margin-bottom: 16px; }
+.login-field label {
+  display: block; font-size: 12px; font-weight: 500;
+  color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.login-field input {
+  width: 100%; padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text); font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+.login-field input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.15);
+}
+.login-actions { margin-top: 24px; }
+.login-msg {
+  margin-top: 14px; padding: 10px 12px;
+  border-radius: 8px; font-size: 13px;
+  background: rgba(248, 81, 73, 0.1);
+  border: 1px solid rgba(248, 81, 73, 0.3);
+  color: var(--danger);
+  text-align: center;
+  display: none;
+}
+
+/* ============ BUTTONS ============ */
+.btn {
+  border: 1px solid transparent;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 13px; font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px; white-space: nowrap;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-block { width: 100%; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--accent-dim); }
+.btn-secondary { background: var(--bg-elev-2); color: var(--text); border-color: var(--border); }
+.btn-secondary:hover:not(:disabled) { background: var(--border-soft); border-color: var(--border); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover:not(:disabled) { background: #d14540; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover:not(:disabled) { background: #349a44; }
+.btn-ghost { background: transparent; color: var(--text-dim); border-color: var(--border); }
+.btn-ghost:hover:not(:disabled) { background: var(--bg-elev-2); color: var(--text); }
+.btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 6px; }
+
+/* ============ APP LAYOUT ============ */
+.topbar {
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex; flex-wrap: wrap; gap: 12px;
+  align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(8px);
+}
+.topbar-brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; }
+.topbar-brand svg { color: var(--accent); }
+.topbar-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.role-badge {
+  font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 6px;
+  background: rgba(79, 140, 255, 0.12); color: var(--info);
+  border: 1px solid rgba(79, 140, 255, 0.25); text-transform: uppercase; letter-spacing: 0.4px;
+}
+.role-badge.admin { background: rgba(63, 185, 80, 0.12); color: var(--success); border-color: rgba(63, 185, 80, 0.25); }
+
+.container { max-width: 1280px; margin: 0 auto; padding: 24px; }
+
+/* ============ PERIOD BAR ============ */
+.period-bar {
+  background: var(--bg-elev); border: 1px solid var(--border);
+  padding: 14px 20px; border-radius: var(--radius);
+  margin-bottom: 20px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+}
+.period-label { display: flex; align-items: center; gap: 8px; color: var(--text-dim); font-size: 13px; }
+.period-bar select {
+  padding: 8px 12px; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-size: 13px; font-weight: 500; font-family: inherit; cursor: pointer; min-width: 180px;
+}
+.period-bar select:focus { outline: none; border-color: var(--accent); }
+
+/* ============ STATS GRID ============ */
+.stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px; margin-bottom: 20px;
+}
+.stat {
+  background: var(--bg-elev); border: 1px solid var(--border);
+  padding: 18px 20px; border-radius: var(--radius); transition: border-color 0.15s; animation: fadeIn 0.4s ease both;
+}
+.stat:hover { border-color: var(--border-soft); }
+.stat-label { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
+.stat-value { font-size: 22px; font-weight: 600; color: var(--text); letter-spacing: -0.3px; }
+.stat-value.accent { color: var(--accent); }
+.stat-value.success { color: var(--success); }
+.stat-value.warning { color: var(--warning); }
+.stat-value.info { color: var(--info); }
+
+/* ============ CARD ============ */
+.card {
+  background: var(--bg-elev); border: 1px solid var(--border);
+  padding: 20px; border-radius: var(--radius); margin-bottom: 20px; animation: fadeIn 0.4s ease both;
+}
+.card-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.card-title { font-size: 15px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.card-title svg { color: var(--text-dim); }
+.card-count { font-size: 12px; color: var(--text-muted); font-weight: 400; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.chart-wrap { position: relative; height: 280px; padding: 4px 0; }
+
+/* ============ TABLE ============ */
+.tbl-wrap { overflow-x: auto; overflow-y: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid var(--border-soft); max-height: 500px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 11px 14px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border-soft); }
+th { background: var(--bg-elev-2); color: var(--text-dim); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; z-index: 2; border-bottom: 1px solid var(--border); }
+tbody tr { transition: background 0.1s; }
+tbody tr:hover { background: var(--bg-elev-2); }
+tbody tr:last-child td { border-bottom: none; }
+
+/* ============ BADGE ============ */
+.badge { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.badge.ok { background: rgba(63, 185, 80, 0.15); color: var(--success); border: 1px solid rgba(63, 185, 80, 0.3); }
+.badge.warn { background: rgba(210, 153, 34, 0.15); color: var(--warning); border: 1px solid rgba(210, 153, 34, 0.3); }
+.badge.danger { background: rgba(248, 81, 73, 0.15); color: var(--danger); border: 1px solid rgba(248, 81, 73, 0.3); }
+.badge.neutral { background: var(--bg-elev-2); color: var(--text-dim); border: 1px solid var(--border); }
+
+/* ============ MENU TABS ============ */
+.menu-tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+.menu-tab {
+  padding: 10px 16px; background: transparent; border: none; border-bottom: 2px solid transparent;
+  color: var(--text-dim); font-weight: 500; font-size: 13px; font-family: inherit; cursor: pointer;
+  transition: all 0.15s; margin-bottom: -1px; display: inline-flex; align-items: center; gap: 6px;
+}
+.menu-tab:hover { color: var(--text); }
+.menu-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ============ UPLOAD ZONE ============ */
+.info-box { background: rgba(88, 166, 255, 0.08); border: 1px solid rgba(88, 166, 255, 0.2); border-left: 3px solid var(--info); padding: 14px 16px; border-radius: 8px; font-size: 13px; color: var(--text-dim); margin-bottom: 18px; line-height: 1.7; }
+.info-box b { color: var(--text); }
+
+.upload-zone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px 24px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--bg); }
+.upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: rgba(79, 140, 255, 0.04); }
+.upload-zone-icon { color: var(--text-muted); margin-bottom: 12px; }
+.upload-zone:hover .upload-zone-icon { color: var(--accent); }
+.upload-zone p { color: var(--text); font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.upload-zone p.small { font-size: 12px; color: var(--text-muted); font-weight: 400; }
+.upload-msg { margin-top: 14px; padding: 12px 14px; border-radius: 8px; font-size: 13px; white-space: pre-line; display: none; }
+.upload-msg.ok { background: rgba(63, 185, 80, 0.1); border: 1px solid rgba(63, 185, 80, 0.3); color: var(--success); }
+.upload-msg.err { background: rgba(248, 81, 73, 0.1); border: 1px solid rgba(248, 81, 73, 0.3); color: var(--danger); }
+.upload-msg.loading { background: rgba(79, 140, 255, 0.08); border: 1px solid rgba(79, 140, 255, 0.25); color: var(--info); }
+
+/* ============ MODAL ============ */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); z-index: 9998; display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.2s ease; }
+.modal { background: var(--bg-elev); border: 1px solid var(--border); padding: 24px; border-radius: var(--radius-lg); max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; animation: fadeIn 0.25s ease; }
+.modal h3 { margin-bottom: 20px; font-size: 16px; font-weight: 600; color: var(--text); }
+.modal label { display: block; font-size: 12px; font-weight: 500; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
+.modal input { width: 100%; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; font-family: inherit; margin-bottom: 14px; }
+.modal input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.15); }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+
+/* ============ TOAST ============ */
+#toast {
+  position: fixed; bottom: 24px; right: 24px; padding: 12px 18px;
+  background: var(--bg-elev-2); border: 1px solid var(--border); color: var(--text);
+  border-radius: 8px; font-size: 13px; opacity: 0; transform: translateY(20px);
+  transition: all 0.25s ease; z-index: 9999; max-width: 340px; box-shadow: var(--shadow); white-space: pre-line;
+}
+#toast.show { opacity: 1; transform: translateY(0); }
+#toast.ok { border-left: 3px solid var(--success); }
+#toast.err { border-left: 3px solid var(--danger); }
+
+/* ============ EMPTY / LOADING ============ */
+.empty { text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px; }
+.loading { text-align: center; padding: 40px; color: var(--text-dim); font-size: 13px; }
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+@media (max-width: 640px) {
+  body { font-size: 13px; }
+  .topbar { padding: 12px 16px; }
+  .container { padding: 16px 14px 32px; }
+  .stat-value { font-size: 18px; }
+  .stat { padding: 14px 16px; }
+  .card { padding: 16px; }
+  .chart-wrap { height: 240px; }
+  th, td { padding: 9px 10px; font-size: 12px; }
+  .login-card { padding: 28px 24px; }
+  #toast { bottom: 14px; right: 14px; left: 14px; max-width: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="loginPage" class="login-page">
+  <div class="login-card">
+    <div class="login-brand">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      <h2>Admin Login</h2>
+    </div>
+    <p class="login-sub">Masuk untuk mengelola data penjualan</p>
+    <div class="login-field">
+      <label>Email</label>
+      <input id="a_email" type="email" placeholder="admin@erafone.com" autocomplete="username">
+    </div>
+    <div class="login-field">
+      <label>PIN</label>
+      <input id="a_pin" type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div class="login-actions">
+      <button class="btn btn-primary btn-block" onclick="doLogin()" id="btnLogin">Masuk</button>
+      <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="showPublic()">Lihat sebagai Karyawan</button>
+    </div>
+    <div id="loginMsg" class="login-msg"></div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="appPage" class="hide">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M7 14l4-4 4 4 5-5"></path></svg>
+      <span>Erafone Dashboard</span>
+    </div>
+    <div class="topbar-actions">
+      <span id="roleBadge" class="role-badge">Karyawan</span>
+      <button class="btn btn-ghost btn-sm" id="btnAdminLogin" onclick="showLogin()">Admin</button>
+      <button class="btn btn-ghost btn-sm hide" id="btnLogout" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- PERIODE BAR -->
+    <div class="period-bar">
+      <div class="period-label">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        <span>Periode: <b id="periodeLabel">Semua Bulan</b></span>
+      </div>
+      <select id="bulanSelect" onchange="loadData()">
+        <option value="">Semua Bulan</option>
+      </select>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Total Omzet</div><div class="stat-value accent" id="sOmzet">Rp 0</div></div>
+      <div class="stat"><div class="stat-label">Total Qty</div><div class="stat-value info" id="sQty">0</div></div>
+      <div class="stat"><div class="stat-label">Total Transaksi</div><div class="stat-value info" id="sTrx">0</div></div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px"><svg class="icon" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>Tren Omzet per Tanggal</div>
+        <div class="chart-wrap"><canvas id="chartTren"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px"><svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>Top 10 Produk</div>
+        <div class="chart-wrap"><canvas id="chartProduk"></canvas></div>
+      </div>
+    </div>
+
+    <!-- PERINGKAT -->
+    <div class="card">
+      <div class="card-header"><div class="card-title"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>Peringkat Kinerja Karyawan</div></div>
+      <div class="tbl-wrap">
+        <table id="tblKinerja">
+          <thead><tr><th>#</th><th>Nama</th><th>Omzet</th><th>Transaksi</th><th>Qty</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ADMIN MENU -->
+    <div id="adminOnly" class="hide">
+      <div class="menu-tabs">
+        <button class="menu-tab active" onclick="showAdminTab('upload')"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>Upload Excel</button>
+        <button class="menu-tab" onclick="showAdminTab('manage')"><svg class="icon" viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>Kelola Data</button>
+        <button class="menu-tab" onclick="showAdminTab('files')"><svg class="icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>Data File Upload</button>
+      </div>
+
+      <!-- TAB UPLOAD -->
+      <div id="tabUpload" class="card">
+        <div class="card-title" style="margin-bottom:16px"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>Upload Data Penjualan</div>
+        <div class="info-box">Upload file Excel Anda. Sistem akan menyimpannya ke sheet baru tanpa mengubah data aslinya.<br>Anda dapat mengedit atau menghapus data langsung dari website ini.</div>
+        <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+          <div class="upload-zone-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg></div>
+          <p>Klik atau drag file Excel ke sini</p>
+          <p class="small">Format: .xlsx / .xls</p>
+        </div>
+        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" onchange="handleFile(event)">
+        <div id="uploadMsg" class="upload-msg"></div>
+      </div>
+
+      <!-- TAB MANAGE (EDIT/HAPUS BARIS) -->
+      <div id="tabManage" class="card hide">
+        <div class="card-header">
+          <div class="card-title"><svg class="icon" viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>Kelola Data Transaksi</div>
+        </div>
+        <div class="tbl-wrap">
+          <table id="tblManage">
+            <thead><tr><th>Sheet</th><th>Tanggal</th><th>Karyawan</th><th>Produk</th><th>Qty</th><th>Harga</th><th>Total</th><th>Aksi</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB FILE UPLOAD (HAPUS MENYELURUH) -->
+      <div id="tabFiles" class="card hide">
+        <div class="card-header">
+          <div class="card-title"><svg class="icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>Daftar File Upload</div>
+        </div>
+        <div class="info-box">Menghapus file di sini akan menghapus semua data dari file Excel tersebut secara menyeluruh.</div>
+        <div class="tbl-wrap">
+          <table id="tblFiles">
+            <thead><tr><th>Nama File / Sheet</th><th>Aksi</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+let currentUser = null;
+let charts = {};
+let window_lastData = [];
+
+if (window.Chart) {
+  Chart.defaults.color = '#8b949e';
+  Chart.defaults.borderColor = '#2a3441';
+  Chart.defaults.font.family = "'Inter', sans-serif";
+  Chart.defaults.font.size = 11;
+}
+
+function api(action, params = {}) {
+  return fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action, ...params })
+  }).then(r => r.json());
+}
+
+function toast(msg, ok) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = (ok ? 'ok' : 'err') + ' show';
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+function rupiah(n) { return 'Rp ' + Number(n||0).toLocaleString('id-ID'); }
+function formatBulanLabel(s) {
+  if (!s || !/^\d{4}-\d{2}$/.test(s)) return s;
+  const [y, m] = s.split('-');
+  const b = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  return b[parseInt(m,10)-1] + ' ' + y;
+}
+
+// ===== LOGIN =====
+function showLogin() {
+  document.getElementById('loginPage').classList.remove('hide');
+  document.getElementById('appPage').classList.add('hide');
+}
+function showPublic() {
+  currentUser = null;
+  document.getElementById('loginPage').classList.add('hide');
+  document.getElementById('appPage').classList.remove('hide');
+  document.getElementById('roleBadge').textContent = 'Karyawan';
+  document.getElementById('roleBadge').classList.remove('admin');
+  document.getElementById('btnAdminLogin').classList.remove('hide');
+  document.getElementById('btnLogout').classList.add('hide');
+  document.getElementById('adminOnly').classList.add('hide');
+  loadData();
+}
+function doLogin() {
+  const email = document.getElementById('a_email').value.trim();
+  const pin = document.getElementById('a_pin').value.trim();
+  const msg = document.getElementById('loginMsg');
+  if (!email || !pin) { msg.textContent = 'Email dan PIN wajib diisi'; msg.style.display = 'block'; return; }
+  const btn = document.getElementById('btnLogin');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  api('loginAdmin', { email, pin }).then(r => {
+    btn.disabled = false; btn.textContent = 'Masuk';
+    if (r.success) {
+      currentUser = { role:'admin', email:r.email, pin };
+      msg.style.display = 'none';
+      enterAdmin();
+    } else {
+      msg.textContent = r.message; msg.style.display = 'block';
+    }
+  }).catch(e => {
+    btn.disabled = false; btn.textContent = 'Masuk';
+    msg.textContent = 'Error: ' + e.message; msg.style.display = 'block';
+  });
+}
+function enterAdmin() {
+  document.getElementById('loginPage').classList.add('hide');
+  document.getElementById('appPage').classList.remove('hide');
+  document.getElementById('roleBadge').textContent = 'Admin';
+  document.getElementById('roleBadge').classList.add('admin');
+  document.getElementById('btnAdminLogin').classList.add('hide');
+  document.getElementById('btnLogout').classList.remove('hide');
+  document.getElementById('adminOnly').classList.remove('hide');
+  loadData();
+}
+function logout() {
+  currentUser = null;
+  document.getElementById('btnLogout').classList.add('hide');
+  document.getElementById('btnAdminLogin').classList.remove('hide');
+  document.getElementById('roleBadge').textContent = 'Karyawan';
+  document.getElementById('roleBadge').classList.remove('admin');
+  document.getElementById('adminOnly').classList.add('hide');
+  document.getElementById('a_email').value = '';
+  document.getElementById('a_pin').value = '';
+  loadData();
+}
+
+// ===== LOAD DATA =====
+function loadData() {
+  document.getElementById('bulanSelect').disabled = true;
+  const action = currentUser ? 'getAdminDashboard' : 'getPublicDashboard';
+  const params = { bulan: document.getElementById('bulanSelect').value || '' };
+  if (currentUser) params.pin = currentUser.pin;
+
+  api(action, params).then(r => {
+    document.getElementById('bulanSelect').disabled = false;
+    if (!r.success) { toast(r.message || 'Gagal memuat', false); return; }
+    window_lastData = r.allRows || [];
+    renderBulanSelect(r.bulanList, r.bulanAktif);
+    renderStats(r.summary);
+    drawCharts(r);
+    renderKinerja(r.perKaryawan);
+    if (currentUser && r.allRows) {
+      renderManage(r.allRows);
+    }
+  }).catch(e => {
+    document.getElementById('bulanSelect').disabled = false;
+    toast('Error: ' + e.message, false);
+  });
+}
+
+function renderBulanSelect(list, aktif) {
+  const sel = document.getElementById('bulanSelect');
+  const currentVal = aktif || '';
+  sel.innerHTML = '<option value="">Semua Bulan</option>';
+  list.forEach(b => {
+    const o = document.createElement('option');
+    o.value = b; o.textContent = formatBulanLabel(b);
+    if (b === currentVal) o.selected = true;
+    sel.appendChild(o);
+  });
+  document.getElementById('periodeLabel').textContent = currentVal ? formatBulanLabel(currentVal) : 'Semua Bulan';
+}
+
+function renderStats(s) {
+  document.getElementById('sOmzet').textContent = rupiah(s.totalOmzet);
+  document.getElementById('sQty').textContent = s.totalQty;
+  document.getElementById('sTrx').textContent = s.totalTransaksi;
+}
+
+function drawCharts(r) {
+  const perTgl = {};
+  r.allRows.forEach(x => {
+    const t = typeof x.tanggal === 'string' ? x.tanggal.slice(0,10) : '';
+    if (!t) return;
+    perTgl[t] = (perTgl[t]||0) + x.total;
+  });
+  const trenArr = Object.entries(perTgl).sort((a,b) => a[0].localeCompare(b[0]));
+
+  if (charts.tren) charts.tren.destroy();
+  charts.tren = new Chart(document.getElementById('chartTren'), {
+    type:'line',
+    data: { labels: trenArr.map(x => x[0]), datasets: [{ data: trenArr.map(x => x[1]), borderColor:'#4f8cff', backgroundColor:'rgba(79,140,255,0.1)', tension:0.35, fill:true, pointBackgroundColor:'#4f8cff', pointBorderColor:'#161b22', pointBorderWidth:2, pointRadius:4 }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
+  });
+
+  const top = r.perProduk.slice(0, 10);
+  if (charts.produk) charts.produk.destroy();
+  charts.produk = new Chart(document.getElementById('chartProduk'), {
+    type:'bar',
+    data: { labels: top.map(x => x.produk), datasets: [{ data: top.map(x => x.omzet), backgroundColor:'rgba(79,140,255,0.6)', borderColor:'#4f8cff', borderWidth:1, borderRadius:4 }] },
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
+  });
+}
+
+function renderKinerja(arr) {
+  const tb = document.querySelector('#tblKinerja tbody');
+  tb.innerHTML = '';
+  if (!arr.length) { tb.innerHTML = '<tr><td colspan="5" class="empty">Belum ada data</td></tr>'; return; }
+  arr.forEach((k, i) => {
+    tb.innerHTML += `<tr>
+      <td style="color:var(--text-muted)">${i+1}</td>
+      <td style="font-weight:500">${k.nama}</td>
+      <td>${rupiah(k.omzet)}</td>
+      <td>${k.trx}</td>
+      <td>${k.qty}</td>
+    </tr>`;
+  });
+}
+
+// ===== ADMIN: MANAGE TABLE =====
+function renderManage(rows) {
+  const tb = document.querySelector('#tblManage tbody');
+  tb.innerHTML = '';
+  if (!rows.length) { tb.innerHTML = '<tr><td colspan="8" class="empty">Belum ada data</td></tr>'; return; }
+  
+  // Ambil 100 data terakhir agar tidak berat
+  rows.slice(-100).reverse().forEach(r => {
+    tb.innerHTML += `<tr>
+      <td style="color:var(--text-muted);font-size:11px">${r.sheetName}</td>
+      <td>${r.tanggal}</td>
+      <td>${r.nama}</td>
+      <td>${r.produk}</td>
+      <td>${r.qty}</td>
+      <td>${rupiah(r.harga)}</td>
+      <td style="font-weight:500">${rupiah(r.total)}</td>
+      <td>
+        <button class="btn btn-sm btn-secondary" onclick="editRow('${r.sheetName}', '${r.idTrx}')">Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteRow('${r.sheetName}', '${r.idTrx}')">Hapus</button>
+      </td>
+    </tr>`;
+  });
+}
+
+function editRow(sheetName, idTrx) {
+  const row = window_lastData.find(r => r.idTrx === idTrx && r.sheetName === sheetName);
+  if (!row) return;
+  const html = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <h3>Edit Transaksi (Baris ${idTrx})</h3>
+        <label>Nama Karyawan</label><input id="ed_nama" value="${row.nama}">
+        <label>Produk</label><input id="ed_produk" value="${row.produk}">
+        <label>Qty</label><input id="ed_qty" type="number" value="${row.qty}">
+        <label>Harga</label><input id="ed_harga" type="number" value="${row.harga}">
+        <label>Total</label><input id="ed_total" type="number" value="${row.total}">
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="closeModal()">Batal</button>
+          <button class="btn btn-primary" onclick="saveEdit('${sheetName}', '${idTrx}')">Simpan</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function saveEdit(sheetName, idTrx) {
+  const fields = ['nama', 'produk', 'qty', 'harga', 'total'];
+  let done = 0, allOk = true;
+  fields.forEach(f => {
+    const val = document.getElementById('ed_' + f).value;
+    api('updatePenjualan', { sheetName, idTrx, field: f, value: val, pin: currentUser.pin }).then(r => {
+      if (!r.success) allOk = false;
+      if (++done === fields.length) {
+        closeModal(); toast(allOk ? 'Data diperbarui' : 'Sebagian gagal', allOk); loadData();
+      }
+    });
+  });
+}
+
+function deleteRow(sheetName, idTrx) {
+  if (!confirm('Hapus transaksi ini dari Google Sheet?')) return;
+  api('hapusPenjualan', { sheetName, idTrx, pin: currentUser.pin }).then(r => {
+    toast(r.message, r.success); if (r.success) loadData();
+  });
+}
+
+// ===== ADMIN: FILE UPLOAD TAB =====
+function loadFiles() {
+  api('getSheetsList', {}).then(r => {
+    if (!r.success) return;
+    const tb = document.querySelector('#tblFiles tbody');
+    tb.innerHTML = '';
+    if (!r.list.length) { tb.innerHTML = '<tr><td colspan="2" class="empty">Belum ada file diupload</td></tr>'; return; }
+    r.list.forEach(sheetName => {
+      tb.innerHTML += `<tr>
+        <td style="font-weight:500">${sheetName}</td>
+        <td><button class="btn btn-sm btn-danger" onclick="deleteSheet('${sheetName}')">Hapus File</button></td>
+      </tr>`;
+    });
+  });
+}
+
+function deleteSheet(sheetName) {
+  if (!confirm('PERINGATAN: Menghapus file ini akan menghapus SEMUA DATA dari file Excel tersebut secara permanen. Lanjutkan?')) return;
+  api('hapusSheet', { sheetName, pin: currentUser.pin }).then(r => {
+    toast(r.message, r.success); if (r.success) { loadFiles(); loadData(); }
+  });
+}
+
+// ===== ADMIN TABS =====
+function showAdminTab(t) {
+  const tabs = ['upload','manage','files'];
+  document.querySelectorAll('.menu-tab').forEach((el, i) => {
+    el.classList.toggle('active', tabs[i] === t);
+  });
+  ['upload','manage','files'].forEach(name => {
+    document.getElementById('tab' + name.charAt(0).toUpperCase() + name.slice(1)).classList.toggle('hide', name !== t);
+  });
+  if (t === 'files') loadFiles();
+}
+
+// ===== UPLOAD =====
+function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const base64 = ev.target.result.split(',')[1];
+    const msg = document.getElementById('uploadMsg');
+    msg.style.display = 'block';
+    msg.className = 'upload-msg loading';
+    msg.innerHTML = '<span class="spinner"></span> Mengupload dan memproses...';
+    api('uploadExcel', { base64, fileName: file.name, pin: currentUser.pin }).then(r => {
+      msg.className = 'upload-msg ' + (r.success ? 'ok' : 'err');
+      msg.textContent = r.message;
+      toast(r.message, r.success);
+      if (r.success) { document.getElementById('fileInput').value = ''; loadData(); }
+    }).catch(err => {
+      msg.className = 'upload-msg err';
+      msg.textContent = 'Error: ' + err.message;
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+const dz = document.getElementById('dropZone');
+['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('dragover'); }));
+['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('dragover'); }));
+dz.addEventListener('drop', e => {
+  const f = e.dataTransfer.files[0];
+  if (f) { document.getElementById('fileInput').files = e.dataTransfer.files; handleFile({ target:{ files:[f] } }); }
+});
+
+function closeModal() {
+  const m = document.querySelector('.modal-overlay');
+  if (m) m.remove();
+}
+
+// ===== INIT =====
+showPublic();
+</script>
+</body>
+</html>
